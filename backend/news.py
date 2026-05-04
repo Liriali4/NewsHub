@@ -6,6 +6,7 @@ GET /api/news — carregamento de notícias com paginação e filtros
 from flask import Blueprint, request, jsonify, session
 import requests
 from utils.error_handlers import require_auth, api_error
+import time
 
 news_bp = Blueprint('news', __name__, url_prefix='/api')
 
@@ -20,8 +21,9 @@ CATEGORY_MAP = {
     "geral": "general"
 }
 
-# Cache simples em memória
+# Cache simples em memória com TTL
 _news_cache = {}
+_CACHE_TTL = 300  # 5 minutos
 
 
 def get_news_from_api(category, page, query, api_key):
@@ -125,12 +127,15 @@ def get_news():
     if page < 1:
         page = 1
 
-    # Tentar cache
+    # Tentar cache com TTL
     cache_key = f"news:{category}:{page}:{query}"
     if cache_key in _news_cache:
-        cached_data = _news_cache[cache_key]
-        cached_data['_cached'] = True
-        return jsonify(cached_data), 200
+        cached_data, timestamp = _news_cache[cache_key]
+        if time.time() - timestamp < _CACHE_TTL:
+            cached_data['_cached'] = True
+            return jsonify(cached_data), 200
+        else:
+            del _news_cache[cache_key]  # Remover cache expirado
 
     # Buscar da API
     data, error = get_news_from_api(category, page, query, api_key)
@@ -157,8 +162,8 @@ def get_news():
         'hasMore': has_more
     }
 
-    # Cache com TTL (não implementado aqui, seria com timestamp)
-    _news_cache[cache_key] = response_data
+    # Cache com TTL
+    _news_cache[cache_key] = (response_data, time.time())
 
     return jsonify(response_data), 200
 

@@ -135,6 +135,34 @@ SECRET_KEY=uma_chave_secreta_aleatoria
 
 > Se não tiver `NEWS_API_KEY`, pode usar a aplicação apenas com funcionalidades locais ou de teste, mas a consulta real ao NewsAPI não funcionará.
 
+### Problema comum: `Chave de API não configurada`
+
+Se o navegador mostrar erro 503 e `Chave de API não configurada`, significa que o backend não encontrou `NEWS_API_KEY` no `.env`.
+
+Faça isto:
+
+1. Verifique se existe `newshub\.env` na pasta do projeto
+2. Confirme que `NEWS_API_KEY` está preenchido
+3. Reinicie o backend com:
+
+```powershell
+python backend/app.py
+```
+
+Se o `.env` não existir, copie o exemplo:
+
+```powershell
+copy .env.example .env
+```
+
+Em seguida edite-o e coloque a chave válida do NewsAPI.org.
+
+### Outros problemas comuns
+
+- **Rate Limit (429)**: NewsAPI permite 100 pedidos/dia no plano gratuito. Se exceder, aguarde até o próximo dia ou atualize para plano pago.
+- **Cache**: As notícias são armazenadas em cache por 5 minutos para reduzir chamadas à API.
+- **Timeout**: Se a API demorar muito, tenta novamente mais tarde.
+
 ---
 
 ## 5. Inicializar a base de dados
