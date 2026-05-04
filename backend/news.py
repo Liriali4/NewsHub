@@ -159,11 +159,11 @@ def get_news():
         'articles': articles,
         'totalResults': total_results,
         'page': page,
-        'hasMore': 
-    _news_cache[cache_key] = (response_data, time.time())
+        'hasMore': has_more
+    }
 
-    # Cache com TTL (não implementado aqui, seria com timestamp)
-    _news_cache[cache_key] = response_data
+    # Cache com TTL
+    _news_cache[cache_key] = (response_data, time.time())
 
     return jsonify(response_data), 200
 

@@ -578,6 +578,36 @@ async function initNavbarCategories() {
   });
 }
 
+// === HANDLERS DE EVENTOS ===
+
+/**
+ * Handler para tentar carregar notícias novamente
+ */
+function handleRetry() {
+  loadNews(currentCategory, currentPage, currentQuery);
+}
+
+/**
+ * Handler para processar busca
+ */
+function handleSearch(event) {
+  event.preventDefault();
+  const query = document.getElementById('searchInput').value.trim();
+  if (query) {
+    currentQuery = query;
+    currentPage = 1;
+    loadNews(currentCategory, 1, query);
+  }
+}
+
+/**
+ * Handler para carregar mais notícias
+ */
+function handleLoadMore() {
+  currentPage++;
+  loadNews(currentCategory, currentPage, currentQuery);
+}
+
 // === INICIALIZAÇÃO ===
 
 /**
@@ -586,4 +616,12 @@ async function initNavbarCategories() {
 document.addEventListener('DOMContentLoaded', async () => {
   // Inicializar navbar categorias (funciona em todas as páginas)
   await initNavbarCategories();
+
+  // Event listener para botão "Tentar Novamente"
+  const retryButton = document.getElementById('retryButton');
+  if (retryButton) {
+    retryButton.addEventListener('click', () => {
+      loadNews(currentCategory, currentPage, currentQuery);
+    });
+  }
 });
