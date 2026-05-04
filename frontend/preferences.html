@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="NewsHub - Gerir preferências">
+  <title>Preferências — NewsHub</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- NAVBAR -->
+  <nav role="navigation" aria-label="Navegação principal">
+    <div class="navbar">
+      <div class="navbar-logo">📰 NewsHub</div>
+      
+      <ul class="navbar-categories" id="navbarCategories" role="menubar">
+        <!-- Preenchido dinamicamente por JavaScript -->
+      </ul>
+
+      <div class="navbar-right">
+        <div class="navbar-user">
+          <span id="userNameDisplay">Utilizador</span>
+        </div>
+        <div class="navbar-icons">
+          <button 
+            class="navbar-icon" 
+            id="dashboardBtn" 
+            title="Dashboard" 
+            aria-label="Voltar ao dashboard"
+          >
+            🏠
+          </button>
+          <button 
+            class="navbar-icon" 
+            id="favoritesBtn" 
+            title="Favoritos" 
+            aria-label="Ver favoritos"
+          >
+            ❤️
+          </button>
+          <button 
+            class="navbar-icon" 
+            id="logoutBtn" 
+            title="Terminar sessão" 
+            aria-label="Terminar sessão"
+          >
+            🚪
+          </button>
+        </div>
+        <button class="hamburger" id="hamburgerBtn" aria-label="Abrir menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main role="main" style="margin-top: 70px;">
+    <div class="container">
+      <h1 style="margin-bottom: var(--spacing-lg); margin-top: var(--spacing-lg);">⚙️ As Minhas Preferências</h1>
+      
+      <!-- Secção: Categorias de interesse -->
+      <section style="background-color: var(--color-bg); padding: var(--spacing-lg); border-radius: 12px; box-shadow: var(--shadow-md);">
+        <h2 style="margin-bottom: var(--spacing-lg); font-size: var(--font-size-lg);">Categorias de Interesse</h2>
+        
+        <!-- Grid de categorias -->
+        <div id="categoriesGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+          <!-- Preenchido dinamicamente por JavaScript -->
+        </div>
+
+        <!-- Botão de guardar -->
+        <button 
+          id="savePreferencesBtn" 
+          class="btn btn-primary" 
+          style="padding: var(--spacing-md) var(--spacing-lg); font-size: var(--font-size-base);"
+          disabled
+        >
+          Guardar Preferências
+        </button>
+
+        <!-- Mensagem de sucesso -->
+        <div class="form-success" id="successMessage" style="text-align: center; margin-top: var(--spacing-md);">
+          ✅ Preferências actualizadas com sucesso!
+        </div>
+
+        <!-- Mensagem de erro -->
+        <div class="form-error" id="errorMessage" style="text-align: center; margin-top: var(--spacing-md);"></div>
+      </section>
+
+      <!-- Link para voltar -->
+      <div style="text-align: center; margin-top: var(--spacing-xl);">
+        <a href="index.html" class="btn btn-secondary">← Voltar ao Dashboard</a>
+      </div>
+    </div>
+  </main>
+
+  <!-- TOAST NOTIFICAÇÃO -->
+  <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+  <!-- FOOTER -->
+  <footer role="contentinfo">
+    <p>&copy; 2025 NewsHub — Agregador de notícias inteligente</p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    // Estado local das categorias seleccionadas
+    let selectedCategories = [];
+
+    // Inicialização da página preferences.html
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Verificar autenticação
+      if (!await checkAuth()) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // 2. Renderizar categorias e carregar preferências guardadas
+      await initPreferencesPage();
+
+      // 3. Event listeners
+      document.getElementById('savePreferencesBtn').addEventListener('click', savePreferences);
+      document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+      document.getElementById('dashboardBtn').addEventListener('click', () => {
+        window.location.href = 'index.html';
+      });
+      document.getElementById('favoritesBtn').addEventListener('click', () => {
+        window.location.href = 'favorites.html';
+      });
+
+      // Preencher navbar
+      await initNavbarCategories();
+    });
+
+    async function initPreferencesPage() {
+      try {
+        // Carregar preferências guardadas
+        const preferences = await loadPreferences();
+        selectedCategories = preferences || [];
+
+        // Renderizar grid de categorias
+        const categories = [
+          { id: 'tecnologia', name: 'Tecnologia', icon: '💻' },
+          { id: 'desporto', name: 'Desporto', icon: '⚽' },
+          { id: 'saude', name: 'Saúde', icon: '🏥' },
+          { id: 'ciencia', name: 'Ciência', icon: '🔬' },
+          { id: 'negocios', name: 'Negócios', icon: '💼' },
+          { id: 'entretenimento', name: 'Entretenimento', icon: '🎭' }
+        ];
+
+        const grid = document.getElementById('categoriesGrid');
+        grid.innerHTML = '';
+
+        categories.forEach(category => {
+          const isSelected = selectedCategories.includes(category.id);
+          const card = document.createElement('div');
+          card.className = `category-card ${isSelected ? 'active' : ''}`;
+          card.style.cursor = 'pointer';
+          card.innerHTML = `
+            <div class="category-card-icon">${category.icon}</div>
+            <div class="category-card-name">${category.name}</div>
+          `;
+
+          card.addEventListener('click', () => {
+            card.classList.toggle('active');
+            if (card.classList.contains('active')) {
+              selectedCategories.push(category.id);
+            } else {
+              selectedCategories = selectedCategories.filter(c => c !== category.id);
+            }
+            // Activar botão de guardar se houver mudanças
+            document.getElementById('savePreferencesBtn').disabled = selectedCategories.length === 0;
+          });
+
+          grid.appendChild(card);
+        });
+
+        // Desactivar botão se nenhuma categoria seleccionada
+        document.getElementById('savePreferencesBtn').disabled = selectedCategories.length === 0;
+      } catch (error) {
+        console.error('Erro ao inicializar preferências:', error);
+        document.getElementById('errorMessage').textContent = 'Erro ao carregar preferências. Tenta novamente.';
+        document.getElementById('errorMessage').classList.add('visible');
+      }
+    }
+
+    async function savePreferences() {
+      try {
+        if (selectedCategories.length === 0) {
+          document.getElementById('errorMessage').textContent = 'Selecciona pelo menos uma categoria.';
+          document.getElementById('errorMessage').classList.add('visible');
+          return;
+        }
+
+        const response = await fetch(`${BASE_URL}/preferences`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ categories: selectedCategories })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        // Mostrar mensagem de sucesso
+        document.getElementById('errorMessage').classList.remove('visible');
+        document.getElementById('successMessage').classList.add('visible');
+
+        // Redirecionar após 1.5 segundos
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1500);
+      } catch (error) {
+        console.error('Erro ao guardar preferências:', error);
+        document.getElementById('errorMessage').textContent = 'Erro ao guardar preferências. Tenta novamente.';
+        document.getElementById('errorMessage').classList.add('visible');
+      }
+    }
+  </script>
+</body>
+</html>

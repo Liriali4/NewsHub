@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="NewsHub - Agregador de notícias inteligente com IA">
+  <title>Dashboard — NewsHub</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- NAVBAR -->
+  <nav role="navigation" aria-label="Navegação principal">
+    <div class="navbar">
+      <div class="navbar-logo">📰 NewsHub</div>
+      
+      <ul class="navbar-categories" id="navbarCategories" role="menubar">
+        <!-- Preenchido dinamicamente por JavaScript -->
+      </ul>
+
+      <div class="navbar-right">
+        <div class="navbar-user">
+          <span id="userNameDisplay">Utilizador</span>
+        </div>
+        <div class="navbar-icons">
+          <button 
+            class="navbar-icon" 
+            id="preferencesBtn" 
+            title="Preferências" 
+            aria-label="Ir para preferências"
+          >
+            ⚙️
+          </button>
+          <button 
+            class="navbar-icon" 
+            id="favoritesBtn" 
+            title="Favoritos" 
+            aria-label="Ver favoritos"
+          >
+            ❤️
+          </button>
+          <button 
+            class="navbar-icon" 
+            id="logoutBtn" 
+            title="Terminar sessão" 
+            aria-label="Terminar sessão"
+          >
+            🚪
+          </button>
+        </div>
+        <button class="hamburger" id="hamburgerBtn" aria-label="Abrir menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- SEARCH BAR -->
+  <div class="search-bar">
+    <div class="container">
+      <form id="searchForm" class="search-container" role="search">
+        <input 
+          type="text" 
+          id="searchInput" 
+          class="search-input" 
+          placeholder="Procura notícias..." 
+          aria-label="Procura de notícias"
+        >
+        <button type="submit" class="btn-search">Procurar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main role="main">
+    <div class="container">
+      
+      <!-- SECÇÃO: PARA SI (Personalizado) -->
+      <section id="personalizedSection" class="personalized-section" style="display: none;">
+        <h2 class="personalized-section-title">✨ Para Si</h2>
+        <div class="personalized-grid" id="personalizedGrid">
+          <!-- Preenchido dinamicamente por JavaScript -->
+        </div>
+      </section>
+
+      <!-- SECÇÃO: NOTÍCIAS PRINCIPAIS -->
+      <section class="news-section">
+        <h2 class="section-title" id="newsSectionTitle">Notícias em Destaque</h2>
+        
+        <!-- Spinner de carregamento -->
+        <div class="spinner" id="loadingSpinner"></div>
+
+        <!-- Grid de notícias -->
+        <div class="news-grid" id="newsGrid">
+          <!-- Preenchido dinamicamente por JavaScript -->
+        </div>
+
+        <!-- Estado vazio -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+          <div class="empty-state-icon">📭</div>
+          <h3 class="empty-state-title">Nenhuma notícia encontrada</h3>
+          <p class="empty-state-message">Tenta mudar o filtro de categorias ou pesquisa por outros termos.</p>
+        </div>
+
+        <!-- Estado de erro -->
+        <div class="error-state" id="errorState" style="display: none;">
+          <div class="error-state-icon">⚠️</div>
+          <h3 class="error-state-title">Erro ao carregar notícias</h3>
+          <p class="error-state-message" id="errorMessage"></p>
+          <button class="btn btn-primary error-state-button" id="retryButton">Tentar Novamente</button>
+        </div>
+
+        <!-- Botão "Carregar mais" -->
+        <button class="btn btn-secondary btn-load-more" id="loadMoreBtn" style="display: none;">
+          Carregar mais notícias
+        </button>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- MODAL: RESUMO IA -->
+  <div class="modal-overlay" id="summaryModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">📝 Resumo Inteligente</h3>
+        <button class="modal-close" id="closeSummaryModal" aria-label="Fechar modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="spinner" id="summarySpinner"></div>
+        <p id="summaryContent" style="display: none; line-height: var(--line-height-relaxed);"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICAÇÃO -->
+  <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+  <!-- FOOTER -->
+  <footer role="contentinfo">
+    <p>&copy; 2025 NewsHub — Agregador de notícias inteligente</p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    // Inicialização da página index.html
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Verificar autenticação
+      if (!await checkAuth()) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // 2. Carregar preferências e marcar categorias
+      await loadPreferences();
+
+      // 3. Carregar notícias personalizadas (se houver preferências)
+      await loadPersonalizedNews();
+
+      // 4. Carregar notícias gerais
+      await loadNews('geral', 1);
+
+      // 5. Event listeners
+      document.getElementById('searchForm').addEventListener('submit', handleSearch);
+      document.getElementById('loadMoreBtn').addEventListener('click', handleLoadMore);
+      document.getElementById('retryButton').addEventListener('click', handleRetry);
+      document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+      document.getElementById('favoritesBtn').addEventListener('click', () => {
+        window.location.href = 'favorites.html';
+      });
+      document.getElementById('preferencesBtn').addEventListener('click', () => {
+        window.location.href = 'preferences.html';
+      });
+      document.getElementById('closeSummaryModal').addEventListener('click', closeSummaryModal);
+
+      // Fechar modal ao clicar no overlay
+      document.getElementById('summaryModal').addEventListener('click', (e) => {
+        if (e.target.id === 'summaryModal') {
+          closeSummaryModal();
+        }
+      });
+    });
+
+    function handleSearch(e) {
+      e.preventDefault();
+      const query = document.getElementById('searchInput').value.trim();
+      if (query) {
+        currentQuery = query;
+        currentPage = 1;
+        loadNews(currentCategory, currentPage, query);
+      }
+    }
+
+    function handleLoadMore() {
+      currentPage++;
+      loadNews(currentCategory, currentPage, currentQuery);
+    }
+
+    function handleRetry() {
+      loadNews(currentCategory, currentPage, currentQuery);
+    }
+
+    function closeSummaryModal() {
+      document.getElementById('summaryModal').classList.remove('visible');
+      document.getElementById('summarySpinner').classList.remove('visible');
+      document.getElementById('summaryContent').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

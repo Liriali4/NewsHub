@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="NewsHub - Agregador de notícias inteligente. Entra na tua conta.">
+  <title>Entrar — NewsHub</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
+    <div class="container" style="max-width: 420px;">
+      <!-- Card de LOGIN -->
+      <article class="login-card" style="background-color: var(--color-bg); border-radius: 12px; padding: var(--spacing-xl); box-shadow: var(--shadow-md);">
+        
+        <!-- Logo e título -->
+        <div style="text-align: center; margin-bottom: var(--spacing-xl);">
+          <h1 style="color: var(--color-primary); margin-bottom: var(--spacing-sm);">📰 NewsHub</h1>
+          <p style="color: var(--color-text-light); margin: 0;">Agregador de notícias inteligente</p>
+        </div>
+
+        <!-- Formulário -->
+        <form id="loginForm" style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
+          
+          <!-- Campo: Email -->
+          <div class="form-group">
+            <label for="email" class="form-label">Email</label>
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              class="form-input" 
+              placeholder="teu@email.com" 
+              required
+              aria-label="Endereço de email"
+            >
+            <div class="form-error" id="emailError"></div>
+          </div>
+
+          <!-- Campo: Palavra-passe -->
+          <div class="form-group">
+            <label for="password" class="form-label">Palavra-passe</label>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              class="form-input" 
+              placeholder="Mínimo 8 caracteres" 
+              required
+              aria-label="Palavra-passe"
+            >
+            <div class="form-error" id="passwordError"></div>
+          </div>
+
+          <!-- Mensagem de erro geral -->
+          <div class="form-error" id="generalError" style="text-align: center;"></div>
+
+          <!-- Botão de submit -->
+          <button type="submit" class="btn btn-primary" style="padding: var(--spacing-md); font-size: var(--font-size-base);">
+            Entrar
+          </button>
+        </form>
+
+        <!-- Link para registo -->
+        <div style="text-align: center; margin-top: var(--spacing-lg); padding-top: var(--spacing-lg); border-top: 1px solid #e0e0e0;">
+          <p style="color: var(--color-text-light); margin: 0;">
+            Não tens conta? 
+            <a href="register.html" style="color: var(--color-primary); font-weight: 600;">Registar-se</a>
+          </p>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 NewsHub. Todos os direitos reservados.</p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    // Gestão do formulário de login
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      // Limpar mensagens de erro
+      document.getElementById('emailError').textContent = '';
+      document.getElementById('passwordError').textContent = '';
+      document.getElementById('generalError').textContent = '';
+
+      // Validação básica
+      if (!email) {
+        document.getElementById('emailError').textContent = 'Email é obrigatório';
+        document.getElementById('emailError').classList.add('visible');
+        return;
+      }
+      if (!password) {
+        document.getElementById('passwordError').textContent = 'Palavra-passe é obrigatória';
+        document.getElementById('passwordError').classList.add('visible');
+        return;
+      }
+
+      // Chamar função de login
+      await handleLogin(email, password);
+    });
+  </script>
+</body>
+</html>
