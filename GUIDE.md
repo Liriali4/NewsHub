@@ -33,33 +33,80 @@ Antes de começar, instale:
 
 Abra o terminal e navegue até a pasta do projeto:
 
-```bash
-cd e:\3ANO\ES2\Lab3_part2\newshub
+```powershell
+cd E:\3ANO\ES2\Lab3_part2\newshub
 ```
 
-### 3.2. Criar ambiente virtual
+### 3.2. Criar o ambiente virtual (se ainda não existir)
 
-No Windows:
+```powershell
+python -m venv venv
+```
+
+Se der erro, verifica o Python:
+
+```powershell
+python --version
+```
+
+Deve mostrar algo tipo:
 
 ```bash
-python -m venv venv
+Python 3.x.x
+```
+
+### 3.3. Ativar corretamente no PowerShell
+
+O teu erro veio porque usaste:
+
+```powershell
 venv\Scripts\activate
 ```
 
-No macOS/Linux:
+No PowerShell o correto é:
 
-```bash
-python3 -m venv venv
-source venv/bin/activate
+```powershell
+.\venv\Scripts\Activate.ps1
 ```
 
-### 3.3. Instalar dependências
+Se aparecer erro de política de execução:
 
-Com o ambiente virtual ativo, execute:
-
-```bash
-pip install -r requirements.txt
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
+
+Depois:
+
+```powershell
+.\venv\Scripts\Activate.ps1
+```
+
+Se funcionar vais ver algo assim:
+
+```powershell
+(venv) PS E:\3ANO\ES2\Lab3_part2\newshub>
+```
+
+### 3.4. Erros comuns no PowerShell
+
+Os erros mostram 3 coisas:
+
+1. **Não ativaste o venv corretamente**
+2. **Não tens as dependências instaladas**
+3. Escreveste `ip install` em vez de `pip install` (acontece 😅)
+
+Faz exatamente isto, por ordem.
+
+### 3.5. Instalar dependências
+
+Depois de ativar:
+
+```powershell
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+Uso `python -m pip` porque, no teu PC, o comando `pip` sozinho não está no PATH.
 
 ---
 
