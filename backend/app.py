@@ -19,15 +19,16 @@ app = Flask(__name__)
 
 # === CONFIGURAÇÃO ===
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'chave-secreta-desenvolvimento-insegura-mudar-producao')
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_SECURE'] = False  # True only in production with HTTPS
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
 app.config['CORS_ORIGINS'] = [
     'http://localhost:3000',
     'http://localhost:5500',
     'http://127.0.0.1:5500',
     'file://'
 ]
-app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 
 # === CORS ===
 CORS(app,
@@ -59,31 +60,6 @@ def health_check():
     return jsonify({
         'status': 'ok',
         'timestamp': datetime.now(timezone.utc).isoformat()
-    }), 200
-
-
-@app.route('/api/auth/me', methods=['GET'])
-def get_current_user():
-    """Get current authenticated user"""
-    from flask import session
-    
-    if 'user_id' not in session:
-        return jsonify({'error': 'Não autenticado', 'code': 'UNAUTHORIZED'}), 401
-
-    db = get_db()
-    user = db.execute(
-        'SELECT id, name, email FROM users WHERE id = ?',
-        (session['user_id'],)
-    ).fetchone()
-
-    if not user:
-        session.clear()
-        return jsonify({'error': 'Utilizador não encontrado', 'code': 'NOT_FOUND'}), 401
-
-    return jsonify({
-        'id': user['id'],
-        'name': user['name'],
-        'email': user['email']
     }), 200
 
 

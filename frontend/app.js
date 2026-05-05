@@ -66,6 +66,28 @@ function showToast(message, type = 'info', duration = 3000) {
 }
 
 /**
+ * Define estado de loading em um botão
+ */
+function setButtonLoading(button, isLoading, originalText = null) {
+  if (!button) return;
+  
+  if (!originalText) {
+    originalText = button.dataset.originalText || button.textContent;
+    button.dataset.originalText = originalText;
+  }
+  
+  if (isLoading) {
+    button.disabled = true;
+    button.classList.add('loading');
+    button.textContent = 'A processar...';
+  } else {
+    button.disabled = false;
+    button.classList.remove('loading');
+    button.textContent = originalText;
+  }
+}
+
+/**
  * Tratamento centralizado de erros de fetch
  */
 async function fetchAPI(endpoint, options = {}) {
@@ -122,7 +144,11 @@ async function checkAuth() {
  * Regista um novo utilizador
  */
 async function handleRegister(name, email, password) {
+  const button = document.querySelector('#registerForm button[type="submit"]');
+  
   try {
+    setButtonLoading(button, true);
+    
     const data = await fetchAPI('/auth/register', {
       method: 'POST',
       body: JSON.stringify({ name, email, password })
@@ -133,6 +159,8 @@ async function handleRegister(name, email, password) {
       window.location.href = 'index.html';
     }, 1500);
   } catch (error) {
+    setButtonLoading(button, false);
+    
     // Decompor mensagem de erro
     const errorMsg = error.message;
     if (errorMsg.includes('email')) {
@@ -145,6 +173,8 @@ async function handleRegister(name, email, password) {
       document.getElementById('generalError').textContent = errorMsg;
       document.getElementById('generalError').classList.add('visible');
     }
+    
+    showToast(`❌ Erro: ${errorMsg}`, 'error');
   }
 }
 
@@ -152,7 +182,11 @@ async function handleRegister(name, email, password) {
  * Login de utilizador
  */
 async function handleLogin(email, password) {
+  const button = document.querySelector('#loginForm button[type="submit"]');
+  
   try {
+    setButtonLoading(button, true);
+    
     const data = await fetchAPI('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password })
@@ -164,8 +198,10 @@ async function handleLogin(email, password) {
       window.location.href = 'index.html';
     }, 1500);
   } catch (error) {
+    setButtonLoading(button, false);
     document.getElementById('generalError').textContent = 'Email ou palavra-passe incorretos';
     document.getElementById('generalError').classList.add('visible');
+    showToast('❌ Falha no login', 'error');
   }
 }
 
@@ -280,9 +316,13 @@ async function loadNews(category = 'geral', page = 1, query = '') {
     }
 
     // Construir query string
-    let endpoint = `/news?category=${category}&page=${page}`;
+    let endpoint;
     if (query) {
-      endpoint += `&q=${encodeURIComponent(query)}`;
+      // Pesquisa: usar apenas 'q', ignore category
+      endpoint = `/news?q=${encodeURIComponent(query)}&page=${page}`;
+    } else {
+      // Categoria: usar 'category'
+      endpoint = `/news?category=${category}&page=${page}`;
     }
 
     const data = await fetchAPI(endpoint);
@@ -318,16 +358,36 @@ async function loadNews(category = 'geral', page = 1, query = '') {
     } else {
       if (page === 1) {
         emptyState.style.display = 'block';
+        const emptyMsg = query 
+          ? `Nenhuma notícia encontrada para "${query}"` 
+          : 'Nenhuma notícia disponível nesta categoria';
+        document.getElementById('emptyState').innerHTML = `
+          <div style="text-align: center; padding: 40px 20px;">
+            <div style="font-size: 48px; margin-bottom: 16px;">📰</div>
+            <h3>Sem notícias</h3>
+            <p>${emptyMsg}</p>
+          </div>
+        `;
         document.getElementById('loadMoreBtn').style.display = 'none';
       }
     }
   } catch (error) {
     console.error('Erro ao carregar notícias:', error);
     document.getElementById('loadingSpinner').classList.remove('visible');
-    document.getElementById('errorMessage').textContent = error.message;
+    
+    let errorMsg = 'Não foi possível carregar as notícias';
+    if (error.message.includes('API')) {
+      errorMsg = 'Serviço de notícias indisponível. Tenta novamente em breve.';
+    } else if (error.message.includes('rede')) {
+      errorMsg = 'Problemas de conexão. Verifica a tua internet.';
+    }
+    
+    document.getElementById('errorMessage').textContent = errorMsg;
     document.getElementById('errorState').style.display = 'block';
     document.getElementById('emptyState').style.display = 'none';
     document.getElementById('loadMoreBtn').style.display = 'none';
+    
+    showToast(`❌ ${errorMsg}`, 'error', 4000);
   }
 }
 
@@ -405,7 +465,7 @@ async function toggleFavorite(button) {
         throw new Error('Erro ao remover favorito');
       }
 
-      showToast('Removido dos favoritos', 'info');
+      showToast('✅ Removido dos favoritos', 'info');
     } else {
       // Adicionar aos favoritos
       const response = await fetch(`${BASE_URL}/favorites`, {
@@ -430,12 +490,37 @@ async function toggleFavorite(button) {
         throw new Error('Erro ao adicionar favorito');
       }
 
-      showToast('Adicionado aos favoritos', 'success');
+      showToast('✅ Adicionado aos favoritos', 'success');
     }
   } catch (error) {
     console.error('Erro ao alternar favorito:', error);
-    showToast('⚠️ ' + error.message, 'error');
+    showToast('❌ Não foi possível atualizar favorito', 'error');
   }
+}
+
+/**
+ * Carrega resumo IA do backend
+ */
+async function loadSummary(url, title, description) {
+  try {
+    const modal = document.getElementById('summaryModal');
+    const spinner = document.getElementById('summarySpinner');
+    const content = document.getElementById('summaryContent');
+
+    const data = await fetchAPI('/ai/summary', {
+      method: 'POST',
+      body: JSON.stringify({ url, title, description })
+    });
+
+    spinner.classList.remove('visible');
+    content.textContent = data.summary || 'Resumo não disponível.';
+    content.style.display = 'block';
+  } catch (error) {
+    spinner.classList.remove('visible');
+    content.textContent = '❌ Erro ao gerar resumo. Tenta novamente em breve.';
+    content.style.display = 'block';
+  }
+}
 }
 
 /**
@@ -507,35 +592,13 @@ async function handleShowSummary(button) {
 
   try {
     await loadSummary(url, title, description);
+    showToast('✅ Resumo gerado com sucesso!', 'success', 2000);
   } catch (error) {
     console.error('Erro ao carregar resumo:', error);
     spinner.classList.remove('visible');
     content.textContent = '❌ Serviço de IA indisponível. Tenta novamente em breve.';
     content.style.display = 'block';
-  }
-}
-
-/**
- * Carrega resumo IA do backend
- */
-async function loadSummary(url, title, description) {
-  try {
-    const modal = document.getElementById('summaryModal');
-    const spinner = document.getElementById('summarySpinner');
-    const content = document.getElementById('summaryContent');
-
-    const data = await fetchAPI('/ai/summary', {
-      method: 'POST',
-      body: JSON.stringify({ url, title, description })
-    });
-
-    spinner.classList.remove('visible');
-    content.textContent = data.summary || 'Resumo não disponível.';
-    content.style.display = 'block';
-  } catch (error) {
-    spinner.classList.remove('visible');
-    content.textContent = '❌ Erro ao gerar resumo. Tenta novamente em breve.';
-    content.style.display = 'block';
+    showToast('❌ Não foi possível gerar o resumo', 'error', 3000);
   }
 }
 
@@ -611,10 +674,25 @@ function handleRetry() {
 function handleSearch(event) {
   event.preventDefault();
   const query = document.getElementById('searchInput').value.trim();
-  if (query) {
+  
+  if (!query) {
+    showToast('⚠️ Escreve uma palavra-chave para pesquisar', 'warning');
+    return;
+  }
+  
+  if (!currentQuery || currentQuery !== query) {
     currentQuery = query;
     currentPage = 1;
-    loadNews(currentCategory, 1, query);
+    
+    // Adicionar loading state
+    const searchForm = document.getElementById('searchForm');
+    if (searchForm) {
+      searchForm.classList.add('loading');
+      
+      loadNews(currentCategory, 1, query).finally(() => {
+        searchForm.classList.remove('loading');
+      });
+    }
   }
 }
 
@@ -622,8 +700,15 @@ function handleSearch(event) {
  * Handler para carregar mais notícias
  */
 function handleLoadMore() {
+  const button = document.getElementById('loadMoreBtn');
+  if (!button || button.dataset.loading) return;
+  
+  button.dataset.loading = 'true';
   currentPage++;
-  loadNews(currentCategory, currentPage, currentQuery);
+  
+  loadNews(currentCategory, currentPage, currentQuery).finally(() => {
+    delete button.dataset.loading;
+  });
 }
 
 // === INICIALIZAÇÃO ===
@@ -641,5 +726,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     retryButton.addEventListener('click', () => {
       loadNews(currentCategory, currentPage, currentQuery);
     });
+  }
+
+  // Event listener para form de pesquisa (apenas em index.html)
+  const searchForm = document.getElementById('searchForm');
+  if (searchForm) {
+    searchForm.addEventListener('submit', handleSearch);
+  }
+
+  // Event listener para botão "Carregar mais" (apenas em index.html)
+  const loadMoreBtn = document.getElementById('loadMoreBtn');
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener('click', handleLoadMore);
   }
 });
