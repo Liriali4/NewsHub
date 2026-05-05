@@ -12,7 +12,7 @@
   --color-accent-light: #f472b6;
 
   --color-bg: #ffffff;
-  --color-bg-page: #f8fafc;
+  --color-bg-page: #ffffff;
   --color-bg-secondary: #f1f5f9;
   --color-text: #0f172a;
   --color-text-light: #475569;
@@ -409,32 +409,7 @@ footer a:hover { color: #fff; }
   .category-filter-bar { top: 60px; }
 }
 
-/* 25. MODO ESCURO */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #1e293b;
-    --color-bg-page: #0f172a;
-    --color-bg-secondary: #334155;
-    --color-text: #f1f5f9;
-    --color-text-light: #cbd5e1;
-    --color-text-muted: #64748b;
-  }
-  .search-input { background: var(--color-bg); border-color: var(--color-bg-secondary); color: var(--color-text); }
-  .news-card { background: var(--color-bg); border-color: var(--color-bg-secondary); }
-  .news-card-footer { border-top-color: var(--color-bg-secondary); }
-  .form-input, .form-textarea { background: var(--color-bg); border-color: var(--color-bg-secondary); color: var(--color-text); }
-  .modal-card { background: var(--color-bg); border-color: var(--color-bg-secondary); }
-  .modal-overlay { background: rgba(0,0,0,0.8); }
-  .category-card { background: var(--color-bg); border-color: var(--color-bg-secondary); color: var(--color-text); }
-  .toast { background: var(--color-bg); color: var(--color-text); }
-  .btn-icon:hover { background: var(--color-bg-secondary); }
-  .empty-state { background: linear-gradient(135deg, var(--color-bg), var(--color-bg-page)); border-color: var(--color-bg-secondary); }
-  .auth-card { background: var(--color-bg); }
-  .category-filter-btn { background: var(--color-bg); border-color: var(--color-bg-secondary); color: var(--color-text-light); }
-  .preferences-section { background: var(--color-bg); border-color: var(--color-bg-secondary); }
-  .search-bar { background: var(--color-bg); border-color: var(--color-bg-secondary); }
-  .category-filter-bar { background: var(--color-bg); border-color: var(--color-bg-secondary); }
-}
+/* 25. MODO ESCURO — controlado apenas pelo toggle manual */
 
 /* 26. PRINT */
 @media print {

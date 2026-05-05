@@ -4,10 +4,10 @@
    ======================================== */
 
 // Aplicar tema ANTES de renderizar (evita flash branco/preto)
+// Padrão: CLARO. Só aplica escuro se o utilizador escolheu explicitamente.
 (function () {
   const saved = localStorage.getItem('nh-theme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  if (saved === 'dark' || (!saved && prefersDark)) {
+  if (saved === 'dark') {
     document.documentElement.classList.add('dark');
   } else {
     document.documentElement.classList.remove('dark');
