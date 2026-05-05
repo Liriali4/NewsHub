@@ -225,12 +225,19 @@ function createNewsCard(article) {
         </div>
         <div class="news-card-actions">
           <button 
-            class="btn-icon ${article.isFavorite ? 'favorite' : ''}" 
-            title="Adicionar aos favoritos"
+            class="btn-icon btn-favorite ${article.isFavorite ? 'favorite' : ''}" 
+            title="${article.isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}"
             data-article='${JSON.stringify(article)}'
             onclick="toggleFavorite(this)"
+            aria-label="${article.isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}"
           >
-            ${article.isFavorite ? '★' : '☆'}
+            <span class="fav-icon-wrap">
+              ${article.isFavorite
+                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="17" height="17"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>`
+                : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="17" height="17"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>`
+              }
+              <span class="fav-badge">${article.isFavorite ? '✓' : '+'}</span>
+            </span>
           </button>
           <button 
             class="btn-icon" 
@@ -240,7 +247,7 @@ function createNewsCard(article) {
             data-url="${article.url}"
             onclick="handleShowSummary(this)"
           >
-            ✦
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
           </button>
         </div>
       </div>
@@ -358,6 +365,9 @@ async function loadPersonalizedNews() {
   }
 }
 
+const HEART_FILLED = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>`;
+const HEART_OUTLINE = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>`;
+
 // === FAVORITOS ===
 
 /**
@@ -371,7 +381,15 @@ async function toggleFavorite(button) {
 
     // Optimistic update
     button.classList.toggle('favorite');
-    button.textContent = isFavorite ? '☆' : '★';
+    const nowFav = button.classList.contains('favorite');
+    button.innerHTML = `<span class="fav-icon-wrap">
+      ${nowFav
+        ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="17" height="17"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>`
+        : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="17" height="17"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>`
+      }
+      <span class="fav-badge">${nowFav ? '✓' : '+'}</span>
+    </span>`;
+    button.title = nowFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos';
 
     if (isFavorite) {
       // Remover dos favoritos
@@ -383,11 +401,11 @@ async function toggleFavorite(button) {
       if (!response.ok) {
         // Revert
         button.classList.toggle('favorite');
-        button.textContent = isFavorite ? '★' : '☆';
+        button.innerHTML = `<span class="fav-icon-wrap"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="17" height="17"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg><span class="fav-badge">✓</span></span>`;
         throw new Error('Erro ao remover favorito');
       }
 
-      showToast('❌ Removido dos favoritos', 'info');
+      showToast('Removido dos favoritos', 'info');
     } else {
       // Adicionar aos favoritos
       const response = await fetch(`${BASE_URL}/favorites`, {
@@ -408,11 +426,11 @@ async function toggleFavorite(button) {
       if (!response.ok) {
         // Revert
         button.classList.toggle('favorite');
-        button.textContent = isFavorite ? '★' : '☆';
+        button.innerHTML = `<span class="fav-icon-wrap"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="17" height="17"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg><span class="fav-badge">+</span></span>`;
         throw new Error('Erro ao adicionar favorito');
       }
 
-      showToast('❤️ Adicionado aos favoritos', 'success');
+      showToast('Adicionado aos favoritos', 'success');
     }
   } catch (error) {
     console.error('Erro ao alternar favorito:', error);
