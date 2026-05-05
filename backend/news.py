@@ -29,28 +29,39 @@ _CACHE_TTL = 300  # 5 minutos
 def get_news_from_api(category, page, query, api_key):
     """
     Faz pedido à NewsAPI.org
-    """
-    base_url = "https://newsapi.org/v2/top-headlines"
     
-    params = {
-        'apiKey': api_key,
-        'page': page,
-        'pageSize': 12,
-        'language': 'en'
-    }
-
-    if category and category != 'geral':
-        params['category'] = CATEGORY_MAP.get(category, 'general')
-    else:
-        params['category'] = 'general'
-
-    if query:
-        params['q'] = query
-        base_url = "https://newsapi.org/v2/everything"
-        params.pop('language', None)
-
+    - Se há query: usa /everything com parâmetro 'q'
+    - Se há category: usa /top-headlines com parâmetro 'category'
+    - Nunca mistura ambos nos params
+    """
     try:
-        response = requests.get(base_url, params=params, timeout=5)
+        # Determinar endpoint baseado na presença de query
+        if query:
+            # Pesquisa por palavra-chave → /everything
+            url = "https://newsapi.org/v2/everything"
+            params = {
+                'q': query,
+                'page': page,
+                'pageSize': 12,
+                'sortBy': 'publishedAt',
+                'apiKey': api_key
+            }
+        else:
+            # Pesquisa por categoria → /top-headlines
+            url = "https://newsapi.org/v2/top-headlines"
+            
+            # Mapear categoria portuguesa para inglês
+            mapped_category = CATEGORY_MAP.get(category, 'general')
+            
+            params = {
+                'category': mapped_category,
+                'page': page,
+                'pageSize': 12,
+                'language': 'en',
+                'apiKey': api_key
+            }
+        
+        response = requests.get(url, params=params, timeout=5)
         
         if response.status_code == 401:
             return None, "API_KEY_INVALID"

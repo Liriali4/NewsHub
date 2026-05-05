@@ -182,13 +182,6 @@
         });
       });
 
-      document.getElementById('searchForm').addEventListener('submit', e => {
-        e.preventDefault();
-        const q = document.getElementById('searchInput').value.trim();
-        if (q) { currentQuery = q; currentPage = 1; loadNews(currentCategory, 1, q); }
-      });
-      document.getElementById('loadMoreBtn').addEventListener('click', () => { currentPage++; loadNews(currentCategory, currentPage, currentQuery); });
-      document.getElementById('retryButton').addEventListener('click', () => loadNews(currentCategory, currentPage, currentQuery));
       document.getElementById('logoutBtn').addEventListener('click', handleLogout);
       document.getElementById('favoritesBtn').addEventListener('click', () => window.location.href = 'favorites.html');
       document.getElementById('preferencesBtn').addEventListener('click', () => window.location.href = 'preferences.html');
