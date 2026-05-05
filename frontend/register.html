@@ -3,205 +3,107 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="NewsHub - Agregador de notícias inteligente. Cria a tua conta.">
-  <title>Registar-se — NewsHub</title>
+  <meta name="description" content="NewsHub - Cria a tua conta">
+  <title>Registar — NewsHub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script src="theme.js"></script>
 </head>
 <body>
-  <main style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
-    <div class="container" style="max-width: 420px;">
-      <!-- Card de REGISTO -->
-      <article class="register-card" style="background-color: var(--color-bg); border-radius: 12px; padding: var(--spacing-xl); box-shadow: var(--shadow-md);">
-        
-        <!-- Logo e título -->
-        <div style="text-align: center; margin-bottom: var(--spacing-xl);">
-          <h1 style="color: var(--color-primary); margin-bottom: var(--spacing-sm);">📰 NewsHub</h1>
-          <p style="color: var(--color-text-light); margin: 0;">Cria a tua conta</p>
+  <div style="position:fixed; top:16px; right:16px; z-index:100;">
+    <button id="themeToggleBtn" style="background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); cursor:pointer; width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:all 150ms; color:var(--color-primary);" aria-label="Mudar tema"></button>
+  </div>
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:var(--spacing-sm);">
+          <div style="width:48px; height:48px; background:linear-gradient(135deg,var(--color-primary),var(--color-primary-dark)); border-radius:14px; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-md);">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2" style="width:28px;height:28px;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+            </svg>
+          </div>
+          <h1 style="background:linear-gradient(135deg,var(--color-primary),var(--color-accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; font-size:2rem; font-weight:900; margin:0;">NewsHub</h1>
         </div>
+        <p>Cria a tua conta gratuita</p>
+      </div>
 
-        <!-- Formulário -->
-        <form id="registerForm" style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
-          
-          <!-- Campo: Nome completo -->
-          <div class="form-group">
-            <label for="name" class="form-label">Nome completo</label>
-            <input 
-              type="text" 
-              id="name" 
-              name="name" 
-              class="form-input" 
-              placeholder="João Silva" 
-              required
-              aria-label="Nome completo"
-            >
-            <div class="form-error" id="nameError"></div>
-          </div>
-
-          <!-- Campo: Email -->
-          <div class="form-group">
-            <label for="email" class="form-label">Email</label>
-            <input 
-              type="email" 
-              id="email" 
-              name="email" 
-              class="form-input" 
-              placeholder="teu@email.com" 
-              required
-              aria-label="Endereço de email"
-            >
-            <div class="form-error" id="emailError"></div>
-          </div>
-
-          <!-- Campo: Palavra-passe -->
-          <div class="form-group">
-            <label for="password" class="form-label">Palavra-passe</label>
-            <input 
-              type="password" 
-              id="password" 
-              name="password" 
-              class="form-input" 
-              placeholder="Mínimo 8 caracteres" 
-              required
-              aria-label="Palavra-passe"
-            >
-            <div id="passwordStrength" style="font-size: var(--font-size-xs); margin-top: 4px; display: none;">
-              <span id="strengthText"></span>
-              <div style="width: 100%; height: 4px; background-color: #e0e0e0; border-radius: 2px; margin-top: 4px;">
-                <div id="strengthBar" style="height: 100%; width: 0%; background-color: #dc3545; border-radius: 2px; transition: width 300ms;"></div>
-              </div>
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="name" class="form-label">Nome completo</label>
+          <input type="text" id="name" name="name" class="form-input" placeholder="João Silva" required aria-label="Nome completo">
+          <div class="form-error" id="nameError"></div>
+        </div>
+        <div class="form-group">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" id="email" name="email" class="form-input" placeholder="teu@email.com" required aria-label="Email">
+          <div class="form-error" id="emailError"></div>
+        </div>
+        <div class="form-group">
+          <label for="password" class="form-label">Palavra-passe</label>
+          <input type="password" id="password" name="password" class="form-input" placeholder="Mínimo 8 caracteres" required aria-label="Palavra-passe">
+          <div id="passwordStrength" style="display:none; margin-top:6px;">
+            <span id="strengthText" style="font-size:var(--font-size-xs); font-weight:700;"></span>
+            <div style="width:100%; height:4px; background:var(--color-bg-secondary); border-radius:4px; margin-top:4px;">
+              <div id="strengthBar" style="height:100%; width:0%; border-radius:4px; transition:all 300ms;"></div>
             </div>
-            <div class="form-error" id="passwordError"></div>
           </div>
-
-          <!-- Campo: Confirmar palavra-passe -->
-          <div class="form-group">
-            <label for="passwordConfirm" class="form-label">Confirmar palavra-passe</label>
-            <input 
-              type="password" 
-              id="passwordConfirm" 
-              name="passwordConfirm" 
-              class="form-input" 
-              placeholder="Repete a palavra-passe" 
-              required
-              aria-label="Confirmação de palavra-passe"
-            >
-            <div class="form-error" id="passwordConfirmError"></div>
-          </div>
-
-          <!-- Mensagem de erro geral -->
-          <div class="form-error" id="generalError" style="text-align: center;"></div>
-
-          <!-- Botão de submit -->
-          <button type="submit" class="btn btn-primary" style="padding: var(--spacing-md); font-size: var(--font-size-base);">
-            Criar Conta
-          </button>
-        </form>
-
-        <!-- Link para login -->
-        <div style="text-align: center; margin-top: var(--spacing-lg); padding-top: var(--spacing-lg); border-top: 1px solid #e0e0e0;">
-          <p style="color: var(--color-text-light); margin: 0;">
-            Já tens conta? 
-            <a href="login.html" style="color: var(--color-primary); font-weight: 600;">Entrar</a>
-          </p>
+          <div class="form-error" id="passwordError"></div>
         </div>
-      </article>
-    </div>
-  </main>
+        <div class="form-group">
+          <label for="passwordConfirm" class="form-label">Confirmar palavra-passe</label>
+          <input type="password" id="passwordConfirm" name="passwordConfirm" class="form-input" placeholder="Repete a palavra-passe" required aria-label="Confirmar palavra-passe">
+          <div class="form-error" id="passwordConfirmError"></div>
+        </div>
+        <div class="form-error" id="generalError" style="text-align:center; margin-bottom:var(--spacing-md);"></div>
+        <button type="submit" class="btn btn-primary" style="width:100%; padding:14px; font-size:var(--font-size-base);">
+          Criar Conta
+        </button>
+      </form>
 
-  <footer>
-    <p>&copy; 2025 NewsHub. Todos os direitos reservados.</p>
-  </footer>
+      <div class="auth-divider">
+        <p>Já tens conta? <a href="login.html">Entrar</a></p>
+      </div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
   <script>
-    // Validação de força da palavra-passe
-    const passwordInput = document.getElementById('password');
-    const passwordStrengthDiv = document.getElementById('passwordStrength');
-    const strengthText = document.getElementById('strengthText');
-    const strengthBar = document.getElementById('strengthBar');
-
-    passwordInput.addEventListener('input', () => {
-      const password = passwordInput.value;
-      if (password.length === 0) {
-        passwordStrengthDiv.style.display = 'none';
-        return;
-      }
-
-      let strength = 0;
-      let strength_text = 'Fraca';
-      let strength_color = '#dc3545';
-
-      if (password.length >= 8) strength++;
-      if (password.length >= 12) strength++;
-      if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
-      if (/\d/.test(password)) strength++;
-      if (/[^a-zA-Z\d]/.test(password)) strength++;
-
-      if (strength <= 1) {
-        strength_text = 'Fraca';
-        strength_color = '#dc3545';
-      } else if (strength === 2) {
-        strength_text = 'Razoável';
-        strength_color = '#ffc107';
-      } else if (strength === 3) {
-        strength_text = 'Boa';
-        strength_color = '#17a2b8';
-      } else {
-        strength_text = 'Forte';
-        strength_color = '#28a745';
-      }
-
-      passwordStrengthDiv.style.display = 'block';
-      strengthText.textContent = strength_text;
-      strengthText.style.color = strength_color;
-      strengthBar.style.backgroundColor = strength_color;
-      strengthBar.style.width = (strength / 5 * 100) + '%';
+    const pwInput = document.getElementById('password');
+    pwInput.addEventListener('input', () => {
+      const pw = pwInput.value;
+      const div = document.getElementById('passwordStrength');
+      if (!pw.length) { div.style.display = 'none'; return; }
+      let s = 0;
+      if (pw.length >= 8) s++;
+      if (pw.length >= 12) s++;
+      if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) s++;
+      if (/\d/.test(pw)) s++;
+      if (/[^a-zA-Z\d]/.test(pw)) s++;
+      const labels = ['','Fraca','Razoável','Boa','Forte','Muito Forte'];
+      const colors = ['','#ef4444','#f59e0b','#3b82f6','#10b981','#10b981'];
+      div.style.display = 'block';
+      document.getElementById('strengthText').textContent = labels[s] || 'Fraca';
+      document.getElementById('strengthText').style.color = colors[s] || '#ef4444';
+      document.getElementById('strengthBar').style.width = (s / 5 * 100) + '%';
+      document.getElementById('strengthBar').style.backgroundColor = colors[s] || '#ef4444';
     });
 
-    // Gestão do formulário de registo
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const passwordConfirm = document.getElementById('passwordConfirm').value;
-
-      // Limpar mensagens de erro
-      document.getElementById('nameError').textContent = '';
-      document.getElementById('emailError').textContent = '';
-      document.getElementById('passwordError').textContent = '';
-      document.getElementById('passwordConfirmError').textContent = '';
-      document.getElementById('generalError').textContent = '';
-
-      // Validação básica
-      if (!name) {
-        document.getElementById('nameError').textContent = 'Nome é obrigatório';
-        document.getElementById('nameError').classList.add('visible');
-        return;
-      }
-      if (!email) {
-        document.getElementById('emailError').textContent = 'Email é obrigatório';
-        document.getElementById('emailError').classList.add('visible');
-        return;
-      }
-      if (!password) {
-        document.getElementById('passwordError').textContent = 'Palavra-passe é obrigatória';
-        document.getElementById('passwordError').classList.add('visible');
-        return;
-      }
-      if (password.length < 8) {
-        document.getElementById('passwordError').textContent = 'Palavra-passe deve ter mínimo 8 caracteres';
-        document.getElementById('passwordError').classList.add('visible');
-        return;
-      }
-      if (password !== passwordConfirm) {
-        document.getElementById('passwordConfirmError').textContent = 'Palavras-passe não coincidem';
-        document.getElementById('passwordConfirmError').classList.add('visible');
-        return;
-      }
-
-      // Chamar função de registo
+      ['nameError','emailError','passwordError','passwordConfirmError','generalError'].forEach(id => {
+        document.getElementById(id).textContent = '';
+        document.getElementById(id).classList.remove('visible');
+      });
+      if (!name) { document.getElementById('nameError').textContent = 'Nome é obrigatório'; document.getElementById('nameError').classList.add('visible'); return; }
+      if (!email) { document.getElementById('emailError').textContent = 'Email é obrigatório'; document.getElementById('emailError').classList.add('visible'); return; }
+      if (!password || password.length < 8) { document.getElementById('passwordError').textContent = 'Mínimo 8 caracteres'; document.getElementById('passwordError').classList.add('visible'); return; }
+      if (password !== passwordConfirm) { document.getElementById('passwordConfirmError').textContent = 'Palavras-passe não coincidem'; document.getElementById('passwordConfirmError').classList.add('visible'); return; }
       await handleRegister(name, email, password);
     });
   </script>
