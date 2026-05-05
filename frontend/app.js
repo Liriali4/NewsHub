@@ -225,15 +225,19 @@ function createNewsCard(article) {
         </div>
         <div class="news-card-actions">
           <button 
-            class="btn-icon ${article.isFavorite ? 'favorite' : ''}" 
+            class="btn-icon btn-favorite ${article.isFavorite ? 'favorite' : ''}" 
             title="${article.isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}"
             data-article='${JSON.stringify(article)}'
             onclick="toggleFavorite(this)"
+            aria-label="${article.isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}"
           >
-            ${article.isFavorite
-              ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>`
-              : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>`
-            }
+            <span class="fav-icon-wrap">
+              ${article.isFavorite
+                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="17" height="17"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>`
+                : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="17" height="17"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>`
+              }
+              <span class="fav-badge">${article.isFavorite ? '✓' : '+'}</span>
+            </span>
           </button>
           <button 
             class="btn-icon" 
@@ -377,8 +381,15 @@ async function toggleFavorite(button) {
 
     // Optimistic update
     button.classList.toggle('favorite');
-    button.innerHTML = isFavorite ? HEART_OUTLINE : HEART_FILLED;
-    button.title = isFavorite ? 'Adicionar aos favoritos' : 'Remover dos favoritos';
+    const nowFav = button.classList.contains('favorite');
+    button.innerHTML = `<span class="fav-icon-wrap">
+      ${nowFav
+        ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="17" height="17"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>`
+        : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="17" height="17"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>`
+      }
+      <span class="fav-badge">${nowFav ? '✓' : '+'}</span>
+    </span>`;
+    button.title = nowFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos';
 
     if (isFavorite) {
       // Remover dos favoritos
@@ -390,7 +401,7 @@ async function toggleFavorite(button) {
       if (!response.ok) {
         // Revert
         button.classList.toggle('favorite');
-        button.innerHTML = HEART_FILLED;
+        button.innerHTML = `<span class="fav-icon-wrap"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="17" height="17"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg><span class="fav-badge">✓</span></span>`;
         throw new Error('Erro ao remover favorito');
       }
 
@@ -415,7 +426,7 @@ async function toggleFavorite(button) {
       if (!response.ok) {
         // Revert
         button.classList.toggle('favorite');
-        button.innerHTML = HEART_OUTLINE;
+        button.innerHTML = `<span class="fav-icon-wrap"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="17" height="17"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg><span class="fav-badge">+</span></span>`;
         throw new Error('Erro ao adicionar favorito');
       }
 

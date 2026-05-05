@@ -478,3 +478,41 @@ body { transition: background-color 250ms ease, color 250ms ease; }
 .navbar-icon { position: relative; }
 .navbar-icon svg { width: 18px; height: 18px; }
 
+/* 31. FAVORITE BUTTON COM BADGE */
+.btn-favorite {
+  position: relative;
+  width: 40px !important;
+  height: 40px !important;
+}
+.fav-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.fav-badge {
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 14px;
+  text-align: center;
+  border: 1.5px solid var(--color-bg);
+  background: var(--color-primary);
+  color: #fff;
+  pointer-events: none;
+  transition: all var(--transition-fast);
+}
+.btn-favorite.favorite .fav-badge {
+  background: var(--color-accent);
+}
+.btn-favorite:hover .fav-badge {
+  transform: scale(1.2);
+}
+
